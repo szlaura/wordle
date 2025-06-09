@@ -3,7 +3,7 @@ package com.example.wordle.repository;
 import com.example.wordle.util.WordLoader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-
+import java.io.InputStream;
 import java.util.List;
 
 @Repository
@@ -17,6 +17,7 @@ public class FileWordRepository implements WordRepository {
 
     @Override
     public List<String> loadWords() {
-        return WordLoader.loadWordList(dictionaryFile);
+        InputStream inputStream = WordLoader.class.getResourceAsStream(dictionaryFile);
+        return WordLoader.loadWordList(inputStream, dictionaryFile);
     }
 }

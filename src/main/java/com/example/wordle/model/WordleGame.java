@@ -27,25 +27,26 @@ public class WordleGame {
      *Handles the player's guess and updates the game state accordingly.
      *
      * @param guess The player's guess.
-     * @throws NoGameStartedException if the guess is attempted after the game is ended.
-     * @throws IllegalArgumentException if the guess is null, invalid length, or already guessed.
+     * @throws NoGameStartedException If the guess is attempted after the game is ended.
+     * @throws IllegalArgumentException If the guess is null, contains invalid character, invalid length,
+     * or already guessed.
      */
     public void attempt(String guess) {
         if (finished) throw new NoGameStartedException("Game over! Type 'start' for a new game.", null);
 
-        if (remainingAttempts <= 0) throw new IllegalStateException("No more guesses allowed!\n");
+        if (guess == null || guess.length() != MAX_LETTERS || !guess.chars().allMatch(Character::isLetter))
+            throw new IllegalArgumentException("Guess must be " + MAX_LETTERS+ " alphabetic characters long!" +
+                " (No digits or symbols allowed)\n");
 
-        if (previousAttempts.contains(guess)) throw new IllegalArgumentException("You have already guessed " +
-                "this word!\n");
+        String guessLowerCase = guess.toLowerCase();
+        if (previousAttempts.contains(guessLowerCase))
+            throw new IllegalArgumentException("You have already guessed " + "this word!\n");
 
-        if (guess == null || guess.length() != MAX_LETTERS)
-            throw new IllegalArgumentException("Guess must be " + MAX_LETTERS+ " characters long!\n");
-
-        previousAttempts.add(guess.toLowerCase());
+        previousAttempts.add(guessLowerCase);
         remainingAttempts--;
 
-        if (answer.equalsIgnoreCase(guess) || remainingAttempts == 0) {
+        if (answer.equals(guessLowerCase) || remainingAttempts == 0)
             finished = true;
-        }
+
     }
 }

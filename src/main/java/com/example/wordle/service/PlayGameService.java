@@ -1,13 +1,11 @@
 package com.example.wordle.service;
 
+import com.example.wordle.handler.EmptyWordListException;
 import com.example.wordle.model.LetterResult;
 import com.example.wordle.model.WordleGame;
 import com.example.wordle.repository.WordRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -18,6 +16,7 @@ public class PlayGameService {
     private final WordRepository wordRepository;
     private final Random random = new Random();
     private List<String> wordList;
+    private boolean triedLoading;
     @Getter
     private WordleGame currentGame;
 
@@ -25,15 +24,27 @@ public class PlayGameService {
         this.wordRepository = wordRepository;
     }
 
-    @PostConstruct
-    public void init() {
-        wordList = Collections.unmodifiableList(wordRepository.loadWords());
+    /**
+     * Lazy loads the word list from the repository on the first invocation. If the word list is empty, invalid or
+     * cannot be loaded for any reason, this method throws an exception.
+     *
+     * @throws EmptyWordListException if the word list cannot be loaded for any reason
+     */
+    public void checkWordListLoaded(){
+        if (!triedLoading) {
+            triedLoading = true;
+            wordList = List.copyOf(wordRepository.loadWords());
+        }
+
+        if (wordList == null || wordList.isEmpty()) throw new EmptyWordListException("Word list is empty, contains" +
+                "only invalid words, or could not be loaded.");
     }
 
     /**
      * Selects a random word for the correct answer and starts the game initializing with this word.
      */
     public void startGame() {
+        checkWordListLoaded();
         String answerWord = wordList.get(random.nextInt(wordList.size()));
         currentGame = new WordleGame(answerWord);
     }
@@ -43,7 +54,7 @@ public class PlayGameService {
      *
      * @param guess The player's guess in the current round.
      * @return List of LetterResult feedback for all the letters in the guess.
-     * @throws IllegalStateException if there is no active game.
+     * @throws IllegalStateException If there is no active game.
      */
     public List<LetterResult> attemptGuess(String guess) {
         if (currentGame == null) {
@@ -101,7 +112,7 @@ public class PlayGameService {
     /**
      * Checks if the current game is a win or out of attempts.
      *
-     * @return true if the game is finished, false otherwise.
+     * @return True if the game is finished, false otherwise.
      */
     public boolean isFinished() {
         return currentGame != null && currentGame.isFinished();
@@ -110,12 +121,12 @@ public class PlayGameService {
     /**
      * Decides if the current last guess is the correct word answer.
      *
-     * @return true if the current last guess matches the answer, false otherwise.
+     * @return True if the current last guess matches the answer, false otherwise.
      */
     public boolean isWinner() {
         if (currentGame == null || currentGame.getPreviousAttempts().isEmpty()) return false;
         String lastGuess = currentGame.getPreviousAttempts().getLast();
-        return currentGame.getAnswer().equalsIgnoreCase(lastGuess);
+        return currentGame.getAnswer().equals(lastGuess);
     }
 
     /**
