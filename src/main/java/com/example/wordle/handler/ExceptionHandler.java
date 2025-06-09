@@ -22,10 +22,16 @@ public class ExceptionHandler implements CommandExceptionResolver {
      */
     @Override
     public CommandHandlingResult resolve(Exception e){
-        if(e instanceof WordLoadingException ex){
-            logger.warn("Error occurred while loading word list: {}", ex.getMessage());
+        if(e instanceof WordListIOException ex){
+            logger.error("Error occurred while loading word list: {}", ex.getMessage());
             return CommandHandlingResult.of(ERROR_PREFIX + ex.getMessage());
         }
+
+        if(e instanceof EmptyWordListException ex){
+            logger.error("Word list is empty: {}", ex.getMessage());
+            return CommandHandlingResult.of(ERROR_PREFIX + ex.getMessage());
+        }
+
         if(e instanceof NoGameStartedException ex){
             logger.warn("No game started: {}", ex.getMessage());
             return CommandHandlingResult.of(WARNING_PREFIX + ex.getMessage());
