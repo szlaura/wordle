@@ -9,13 +9,13 @@
 
 -----------------------------------------------------------------------------------------------
 
-Welcome to Wordle CLI!
+Welcome to Wordle CLI 0.0.1!
 Guess the 5-letter word in 5 tries.
 After each guess, colors show:
  - Green: correct letter and position
  - Yellow: correct letter, wrong position
- - Gray: letter not in word
+ - Gray: letter not in the word
 Type 'start' to begin a new game!
-Type 'help' for available commands.
+Type 'info' for available commands.
 
 --------------------------------------
