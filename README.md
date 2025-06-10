@@ -56,11 +56,11 @@ installed on your system.
 
 Open your terminal and use the commands above:
 
-    ```bash
+   ```bash
     git clone https://github.com/szlaura/wordle.git
     cd wordle
     mvn clean package
-    ```
+   ```
 
 2. **Run the CLI Application:**
 
